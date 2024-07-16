@@ -153,11 +153,11 @@ def test():
         engine = ExecutionEngine(
             newModule,
             shared_libs=[
-                "/usr/lib/libomp.so",
-                "/home/liam/IPRC/llvm-project/build/lib/libmlir_c_runner_utils.so",
-                "/home/liam/IPRC/llvm-project/build/lib/libmlir_async_runtime.so",
-                "/home/liam/IPRC/llvm-project/build/lib/libmlir_runner_utils.so",
-                "/home/liam/IPRC/llvm-project/build/lib/libmlir_cuda_runtime.so",
+                "/usr/lib/x86_64-linux-gnu/libomp.so.5",
+                "/home/jc/buddy-mlir/llvm/build/lib/libmlir_c_runner_utils.so",
+                "/home/jc/buddy-mlir/llvm/build/lib/libmlir_async_runtime.so",
+                "/home/jc/buddy-mlir/llvm/build/lib/libmlir_runner_utils.so",
+                "/home/jc/buddy-mlir/llvm/build/lib/libmlir_cuda_runtime.so",
             ],
             opt_level=3,
         )
