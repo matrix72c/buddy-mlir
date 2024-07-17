@@ -26,44 +26,45 @@ module attributes { transform.with_named_sequence } {
     transform.apply_patterns.linalg.tiling_canonicalization
     } : !transform.any_op
 
+    transform.print %1 : !transform.any_op
     // Step 5: Pad the tiled operation.
-    %padded, %pad, %copy = transform.structured.pad %tiled_op {copy_back_op = "none", pack_paddings = [1, 1, 1], pad_to_multiple_of = [1, 1, 1], padding_dimensions = [0, 1, 2], padding_values = [0.000000e+00 : f32, 0.000000e+00 : f32, 0.000000e+00 : f32]} : (!transform.any_op) -> (!transform.any_op, !transform.any_op, !transform.any_op)
+    // %padded, %pad, %copy = transform.structured.pad %tiled_op {copy_back_op = "none", pack_paddings = [1, 1, 1], pad_to_multiple_of = [1, 1, 1], padding_dimensions = [0, 1, 2], padding_values = [0.000000e+00 : f32, 0.000000e+00 : f32, 0.000000e+00 : f32]} : (!transform.any_op) -> (!transform.any_op, !transform.any_op, !transform.any_op)
 
     // Step 6: Tile using for loops again.
-    %tiled_linalg_op, %loops = transform.structured.tile_using_for %padded [0, 0, 16] : (!transform.any_op) -> (!transform.any_op, !transform.any_op)
+    // %tiled_linalg_op, %loops = transform.structured.tile_using_for %padded [0, 0, 16] : (!transform.any_op) -> (!transform.any_op, !transform.any_op)
 
     // Step 7: Apply vectorization.
-    %14 = transform.structured.match ops{["func.func"]} in %arg0 : (!transform.any_op) -> !transform.any_op
-    transform.apply_patterns to %14 {
-      transform.apply_patterns.linalg.tiling_canonicalization
-      transform.apply_patterns.scf.for_loop_canonicalization
-      transform.apply_patterns.canonicalization
-    } : !transform.any_op
-    transform.apply_cse to %14 : !transform.any_op
-    %all_loops_2 = transform.structured.match interface{LoopLikeInterface}
-        in %14
-        : (!transform.any_op) -> !transform.any_op
-    transform.apply_licm to %all_loops_2 : !transform.any_op
-    transform.apply_patterns to %14 {
-      transform.apply_patterns.linalg.tiling_canonicalization
-      transform.apply_patterns.vector.lower_masked_transfers
-    } : !transform.any_op
-    %16 = transform.structured.vectorize_children_and_apply_patterns %14 : (!transform.any_op) -> !transform.any_op
+    // %14 = transform.structured.match ops{["func.func"]} in %arg0 : (!transform.any_op) -> !transform.any_op
+    // transform.apply_patterns to %14 {
+    //   transform.apply_patterns.linalg.tiling_canonicalization
+    //   transform.apply_patterns.scf.for_loop_canonicalization
+    //   transform.apply_patterns.canonicalization
+    // } : !transform.any_op
+    // transform.apply_cse to %14 : !transform.any_op
+    // %all_loops_2 = transform.structured.match interface{LoopLikeInterface}
+    //     in %14
+    //     : (!transform.any_op) -> !transform.any_op
+    // transform.apply_licm to %all_loops_2 : !transform.any_op
+    // transform.apply_patterns to %14 {
+    //   transform.apply_patterns.linalg.tiling_canonicalization
+    //   transform.apply_patterns.vector.lower_masked_transfers
+    // } : !transform.any_op
+    // %16 = transform.structured.vectorize_children_and_apply_patterns %1 : (!transform.any_op) -> !transform.any_op
 
-    transform.apply_patterns to %16 {
-    transform.apply_patterns.linalg.tiling_canonicalization
-    transform.apply_patterns.scf.for_loop_canonicalization
-    transform.apply_patterns.canonicalization
-    } : !transform.any_op
-    transform.apply_cse to %16 : !transform.any_op
-    %all_loops_3 = transform.structured.match interface{LoopLikeInterface}
-        in %16
-        : (!transform.any_op) -> !transform.any_op
-    transform.apply_licm to %all_loops_3 : !transform.any_op
-    transform.apply_patterns to %16 {
-      transform.apply_patterns.linalg.tiling_canonicalization
-      transform.apply_patterns.vector.lower_masked_transfers
-    } : !transform.any_op
+    // transform.apply_patterns to %16 {
+    // transform.apply_patterns.linalg.tiling_canonicalization
+    // transform.apply_patterns.scf.for_loop_canonicalization
+    // transform.apply_patterns.canonicalization
+    // } : !transform.any_op
+    // transform.apply_cse to %16 : !transform.any_op
+    // %all_loops_3 = transform.structured.match interface{LoopLikeInterface}
+    //     in %16
+    //     : (!transform.any_op) -> !transform.any_op
+    // transform.apply_licm to %all_loops_3 : !transform.any_op
+    // transform.apply_patterns to %16 {
+    //   transform.apply_patterns.linalg.tiling_canonicalization
+    //   transform.apply_patterns.vector.lower_masked_transfers
+    // } : !transform.any_op
 
     // Step 8: Bufferization.
     %scf_forall = transform.structured.match ops{["scf.forall"]} attributes{mapping = [#gpu.block<y>, #gpu.block<x>]} in %arg0 : (!transform.any_op) -> !transform.any_op
